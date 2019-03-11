@@ -1,8 +1,17 @@
-.empty-text{
-    text-align: center;
+.empty-text {
+  text-align: center;
 }
 
-mat-expansion-panel{
-    width: 80%;
-    margin: auto;
+mat-expansion-panel {
+  width: 80%;
+  margin: auto;
+}
+
+.post-image {
+  width: 100%;
+}
+
+.post-image img {
+  width: 100%;
+  box-shadow: 1px 1px 5px rgb(0,0,0,0.5);
 }

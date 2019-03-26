@@ -11,9 +11,12 @@ export class PostsService {
 
   constructor(private http: HttpClient) {}
 
-  getPosts(): Observable<any> {
+  getPosts(postPerPage: number, currentPage: number): Observable<any> {
+    const queryParams = `?pagesize=${postPerPage}&page=${currentPage}`;
     return this.http
-      .get<{ message: string; posts: any }>("http://localhost:3000/api/posts")
+      .get<{ message: string; posts: any; maxPosts: number }>(
+        "http://localhost:3000/api/posts" + queryParams
+      )
       .pipe(
         map(postData => {
           return {
@@ -25,11 +28,14 @@ export class PostsService {
                 id: post._id,
                 imagePath: post.imagePath
               };
-            })
+            }),
+            maxPosts: postData.maxPosts
           };
         })
       );
   }
+
+  onChangePage() {}
 
   addPosts(title: string, content: string, image: File) {
     const postData = new FormData();

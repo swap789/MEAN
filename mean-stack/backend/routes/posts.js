@@ -39,7 +39,7 @@ router.post(
       imagePath: url + "/images/" + req.file.filename
     });
     post.save().then(createdPost => {
-      console.log(createdPost);
+      // craeted post comes from DB aftre saving
       res.status(201).json({
         message: "Post added successfully",
         post: {
@@ -54,9 +54,10 @@ router.post(
 );
 
 router.get("/:id", (req, res, next) => {
-  Post.findById(req.params.id).then(post => {
+  Post.findById(req.params.id).then(posts => {
+    //send post list came from DB.
     if (post) {
-      res.status(200).json(post);
+      res.status(200).json(posts);
     } else {
       res.status(404).json({ message: "Post not Found" });
     }
@@ -67,9 +68,9 @@ router.put(
   "/:id",
   multer({ storage: storage }).single("image"),
   (req, res, next) => {
-    let imagePath = req.body.imagePath;
-    console.log(imagePath);
+    let imagePath = req.body.imagePath; // if existing imgage used for updation
     if (req.file) {
+      // if new image for updation.
       const url = req.protocol + "://" + req.get("host");
       imagePath = url + "/images/" + req.file.filename;
     }
@@ -79,9 +80,9 @@ router.put(
       content: req.body.content,
       imagePath: imagePath
     });
-    console.log(post);
 
     Post.updateOne({ _id: req.params.id }, post).then(result => {
+      // updated new image
       res.status(200).json({
         message: "updated succesfully",
         posts: result
@@ -91,15 +92,31 @@ router.put(
 );
 
 router.get("", (req, res, next) => {
-  Post.find().then(documents => {
-    res.status(202).json({
-      message: "get posts success",
-      posts: documents
+  const pageSize = +req.query.pagesize;
+  const currentPage = +req.query.page;
+  const postQuery = Post.find();
+  let fetchPosts;
+
+  if (pageSize && currentPage) {
+    postQuery.skip(pageSize * (currentPage - 1)).limit(pageSize);
+  }
+
+  postQuery
+    .then(documents => {
+      fetchPosts = documents;
+      return Post.count();
+    })
+    .then(count => {
+      res.status(202).json({
+        message: "get posts success",
+        posts: fetchPosts,
+        maxPosts: count
+      });
     });
-  });
 });
 
 router.delete("/:id", (req, res, next) => {
+  // delete post using new Id.
   Post.deleteOne({ _id: req.params.id }).then(result => {
     console.log(req.params.id);
     res.status(200).json({ message: "Post deleted", id: req.params.id });

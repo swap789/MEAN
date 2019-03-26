@@ -26,6 +26,11 @@ export class PostCreateComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.createNewForm();
+    this.getParams();
+  }
+
+  createNewForm() {
     this.form = new FormGroup({
       title: new FormControl(null, {
         validators: [Validators.required, Validators.minLength(3)]
@@ -37,7 +42,6 @@ export class PostCreateComponent implements OnInit {
         validators: [Validators.required]
       })
     });
-    this.getParams();
   }
 
   getParams() {
@@ -98,9 +102,9 @@ export class PostCreateComponent implements OnInit {
     this.postService
       .addPosts(post.title, post.content, this.form.value.image)
       .subscribe((response: any) => {
-        this.isLoadling = false;
-        this.setPost(response.post);
-        this.form.reset();
+        // this.isLoadling = false;
+        // this.setPost(response.post);
+        // this.form.reset();
         this.router.navigate(["/list"]);
       });
   }
@@ -117,15 +121,14 @@ export class PostCreateComponent implements OnInit {
         this.form.value.image
       )
       .subscribe(result => {
-        this.isLoadling = false;
-        this.form.reset();
+        // this.isLoadling = false;
+        // this.form.reset();
         this.router.navigate(["/list"]);
       });
   }
 
   getPost() {
     this.postService.getPost(this.postId).subscribe(postData => {
-      console.log(postData);
       this.setUpdate(postData);
     });
   }

@@ -10,7 +10,7 @@ mongoose
     "mongodb+srv://Swapnil:9ivsuepEmov9db8n@cluster0-dqrjx.mongodb.net/ndoe-angular?retryWrites=true"
   )
   .then(() => {
-    console.log("connected to database");
+    console.log("connected to database"); //connection established.
   })
   .catch(() => {
     console.log("connection Failed");
@@ -18,7 +18,7 @@ mongoose
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use("/images", express.static(path.join("backend/images")));
+app.use("/images", express.static(path.join("backend/images"))); // stored images on this path
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(

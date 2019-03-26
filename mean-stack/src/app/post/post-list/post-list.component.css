@@ -15,3 +15,7 @@ mat-expansion-panel {
   width: 100%;
   box-shadow: 1px 1px 5px rgb(0,0,0,0.5);
 }
+
+mat-paginator{
+  margin: 16px;
+}

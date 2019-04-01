@@ -17,18 +17,22 @@ export class PostCreateComponent implements OnInit {
   isLoadling: boolean = false;
   form: FormGroup;
   imagePreview: string;
+  isAuthenticated: boolean = false;
 
   constructor(
     public postService: PostsService,
     public eventBus: BroadcasterService,
     private activateRoute: ActivatedRoute,
+    private broadcast: BroadcasterService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.createNewForm();
     this.getParams();
   }
+
+
 
   createNewForm() {
     this.form = new FormGroup({
@@ -138,7 +142,8 @@ export class PostCreateComponent implements OnInit {
       id: postData._id,
       title: postData.title,
       content: postData.content,
-      imagePath: postData.imagePath
+      imagePath: postData.imagePath,
+      creator: postData.creator
     };
     this.post = post;
     this.form.setValue({

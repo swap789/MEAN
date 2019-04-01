@@ -4,12 +4,12 @@ import { Subject, Observable } from "rxjs";
 import { map } from "rxjs/operators";
 import { HttpClient } from "@angular/common/http";
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class PostsService {
   private posts: PostModel[] = [];
   private postUpdated = new Subject<PostModel[]>();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getPosts(postPerPage: number, currentPage: number): Observable<any> {
     const queryParams = `?pagesize=${postPerPage}&page=${currentPage}`;
@@ -26,7 +26,8 @@ export class PostsService {
                 title: post.title,
                 content: post.content,
                 id: post._id,
-                imagePath: post.imagePath
+                imagePath: post.imagePath,
+                creator: post.creator
               };
             }),
             maxPosts: postData.maxPosts
@@ -35,7 +36,7 @@ export class PostsService {
       );
   }
 
-  onChangePage() {}
+  onChangePage() { }
 
   addPosts(title: string, content: string, image: File) {
     const postData = new FormData();
@@ -59,7 +60,8 @@ export class PostsService {
         id: id,
         title: title,
         content: content,
-        imagePath: image
+        imagePath: image,
+        creator: null
       };
     }
     //  const post: PostModel = { id: id, title: title, content: content };

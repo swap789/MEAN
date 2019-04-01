@@ -5,6 +5,7 @@ import { Subscription } from "rxjs";
 import { BroadcasterService } from "../broadcast.service";
 import { ParamMap } from "@angular/router";
 import { PageEvent } from "@angular/material";
+import { AuthService } from 'src/app/auth/auth.service';
 
 @Component({
   selector: "app-post-list",
@@ -18,10 +19,15 @@ export class PostListComponent implements OnInit, OnDestroy {
   currentPage: number = 1;
   postPerPage: number = 2;
   pageSizeOptions = [1, 2, 5, 10];
+  isAuthenticated: boolean = false;
+  authenicationSub: Subscription;
+  userId: string;
+
   constructor(
     public postService: PostsService,
-    private eventBus: BroadcasterService
-  ) {}
+    private eventBus: BroadcasterService,
+    private authService: AuthService
+  ) { }
 
   ngOnInit() {
     this.getPosts();
@@ -32,10 +38,17 @@ export class PostListComponent implements OnInit, OnDestroy {
     this.eventBus.on("postData").subscribe((post: PostModel) => {
       this.posts = [...this.posts, post];
     });
+
+    this.authenicationSub = this.eventBus.on("isAuthenticated").subscribe((isAuthenticated: boolean) => {
+      console.log(isAuthenticated);
+      this.isAuthenticated = isAuthenticated;
+      this.userId = this.authService.getUserId;
+    });
   }
 
   ngOnDestroy() {
     this.postsSubscriber.unsubscribe();
+    this.authenicationSub.unsubscribe();
   }
 
   onChangePage(pageData: PageEvent) {
@@ -45,9 +58,11 @@ export class PostListComponent implements OnInit, OnDestroy {
   }
 
   getPosts() {
+    this.userId = this.authService.getUserId;
     this.postsSubscriber = this.postService
       .getPosts(this.postPerPage, this.currentPage)
       .subscribe(postData => {
+        console.log(postData);
         this.totalPost = postData.maxPosts;
         this.posts = postData.posts;
       });
@@ -56,8 +71,8 @@ export class PostListComponent implements OnInit, OnDestroy {
   onDelete(postId: string) {
     this.postService.deletePost(postId).subscribe(data => {
       this.getPosts();
-     // const updatedPosts = this.posts.filter(post => post.id !== data.id);
-     // this.posts = updatedPosts;
+      // const updatedPosts = this.posts.filter(post => post.id !== data.id);
+      // this.posts = updatedPosts;
     });
   }
 }

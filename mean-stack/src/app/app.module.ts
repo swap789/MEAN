@@ -8,18 +8,18 @@ import { PostCreateComponent } from "./post/post-create/post-create.component";
 import { PostListComponent } from "./post/post-list/post-list.component";
 import { DemoMaterialModule } from "./material.module";
 import { HeaderComponent } from "./header/header.component";
-import { PostsService } from "./post/posts.service";
-import { HttpClientModule } from "@angular/common/http";
-import { BroadcasterService } from "./post/broadcast.service";
+import { HttpClientModule, HTTP_INTERCEPTORS } from "@angular/common/http";
 import { AppRoutingModule } from "./app-routing.module";
-//import { PostCreateComponent } from "./post/post-create/post-create.component";
+import { LoginComponent } from './auth/login/login.component';
+import { SignUpComponent } from './auth/signup/sign-up.component';
+import { AuthInterceptor } from './auth/auth-interceptor';
 
 @NgModule({
   declarations: [
     AppComponent,
     PostCreateComponent,
     PostListComponent,
-    HeaderComponent
+    HeaderComponent, LoginComponent, SignUpComponent
   ],
   imports: [
     BrowserModule,
@@ -30,7 +30,7 @@ import { AppRoutingModule } from "./app-routing.module";
     HttpClientModule,
     AppRoutingModule
   ],
-  providers: [PostsService, BroadcasterService],
+  providers: [{ provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }],
   bootstrap: [AppComponent]
 })
-export class AppModule {}
+export class AppModule { }

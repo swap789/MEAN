@@ -2,6 +2,7 @@ const express = require("express");
 const Post = require("../model/post");
 const router = express.Router();
 const multer = require("multer");
+const checkAuth = require("../middleware/check-auth");
 
 const MIME_TYPE_MAP = {
   "image/png": "png",
@@ -29,14 +30,15 @@ const storage = multer.diskStorage({
 });
 
 router.post(
-  "",
+  "", checkAuth,
   multer({ storage: storage }).single("image"),
   (req, res, next) => {
     const url = req.protocol + "://" + req.get("host");
     const post = new Post({
       title: req.body.title,
       content: req.body.content,
-      imagePath: url + "/images/" + req.file.filename
+      imagePath: url + "/images/" + req.file.filename,
+      creator: req.userData.userId
     });
     post.save().then(createdPost => {
       // craeted post comes from DB aftre saving
@@ -46,7 +48,8 @@ router.post(
           id: createdPost._id,
           title: createdPost.title,
           content: createdPost.content,
-          imagePath: createdPost.imagePath
+          imagePath: createdPost.imagePath,
+          creator: createdPost.creator
         }
       });
     });
@@ -56,7 +59,7 @@ router.post(
 router.get("/:id", (req, res, next) => {
   Post.findById(req.params.id).then(posts => {
     //send post list came from DB.
-    if (post) {
+    if (posts) {
       res.status(200).json(posts);
     } else {
       res.status(404).json({ message: "Post not Found" });
@@ -65,7 +68,7 @@ router.get("/:id", (req, res, next) => {
 });
 
 router.put(
-  "/:id",
+  "/:id", checkAuth,
   multer({ storage: storage }).single("image"),
   (req, res, next) => {
     let imagePath = req.body.imagePath; // if existing imgage used for updation
@@ -78,15 +81,21 @@ router.put(
       _id: req.body.id,
       title: req.body.title,
       content: req.body.content,
-      imagePath: imagePath
+      imagePath: imagePath,
+      creator: req.userData.userId
     });
 
-    Post.updateOne({ _id: req.params.id }, post).then(result => {
-      // updated new image
-      res.status(200).json({
-        message: "updated succesfully",
-        posts: result
-      });
+    Post.updateOne({ _id: req.params.id, creator: req.userData.userId }, post).then(result => {
+      if (result.nModified > 0) {
+        res.status(200).json({
+          message: "updated succesfully",
+          posts: result
+        });
+      } else {
+        res.status(401).json({
+          message: "Unauthorized",
+        });
+      }
     });
   }
 );
@@ -115,11 +124,18 @@ router.get("", (req, res, next) => {
     });
 });
 
-router.delete("/:id", (req, res, next) => {
+router.delete("/:id", checkAuth, (req, res, next) => {
   // delete post using new Id.
-  Post.deleteOne({ _id: req.params.id }).then(result => {
-    console.log(req.params.id);
-    res.status(200).json({ message: "Post deleted", id: req.params.id });
+  Post.deleteOne({ _id: req.params.id, creator: req.userData.userId }).then(result => {
+    if (result.n > 0) {
+      res.status(200).json({
+        message: "Post deleted",
+      });
+    } else {
+      res.status(401).json({
+        message: "Unauthorized",
+      });
+    }
   });
 });
 

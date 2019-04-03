@@ -4,7 +4,7 @@ import { PostsService } from "../posts.service";
 import { Subscription } from "rxjs";
 import { BroadcasterService } from "../broadcast.service";
 import { ParamMap } from "@angular/router";
-import { PageEvent } from "@angular/material";
+import { PageEvent, MatSnackBar } from "@angular/material";
 import { AuthService } from 'src/app/auth/auth.service';
 
 @Component({
@@ -26,7 +26,8 @@ export class PostListComponent implements OnInit, OnDestroy {
   constructor(
     public postService: PostsService,
     private eventBus: BroadcasterService,
-    private authService: AuthService
+    private authService: AuthService,
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit() {
@@ -65,14 +66,23 @@ export class PostListComponent implements OnInit, OnDestroy {
         console.log(postData);
         this.totalPost = postData.maxPosts;
         this.posts = postData.posts;
+      }, error => {
+        this.openSnackBar("Getting error in getting post", "Error");
       });
   }
 
   onDelete(postId: string) {
     this.postService.deletePost(postId).subscribe(data => {
+      this.openSnackBar("Post deleted successfully", "Success");
       this.getPosts();
-      // const updatedPosts = this.posts.filter(post => post.id !== data.id);
-      // this.posts = updatedPosts;
+    }, error => {
+      this.openSnackBar("Getting error in deleting post", "Error");
+    });
+  }
+
+  openSnackBar(message: string, action: string) {
+    this.snackBar.open(message, action, {
+      duration: 3000,
     });
   }
 }

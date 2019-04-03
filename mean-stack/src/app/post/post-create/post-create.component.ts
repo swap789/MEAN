@@ -4,6 +4,7 @@ import { PostModel } from "../post.model";
 import { PostsService } from "../posts.service";
 import { BroadcasterService } from "../broadcast.service";
 import { ActivatedRoute, ParamMap, Router } from "@angular/router";
+import { MatSnackBar } from '@angular/material';
 
 @Component({
   selector: "app-post-create",
@@ -24,7 +25,8 @@ export class PostCreateComponent implements OnInit {
     public eventBus: BroadcasterService,
     private activateRoute: ActivatedRoute,
     private broadcast: BroadcasterService,
-    private router: Router
+    private router: Router,
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit() {
@@ -106,10 +108,12 @@ export class PostCreateComponent implements OnInit {
     this.postService
       .addPosts(post.title, post.content, this.form.value.image)
       .subscribe((response: any) => {
-        // this.isLoadling = false;
-        // this.setPost(response.post);
-        // this.form.reset();
+        this.isLoadling = false;
+        this.openSnackBar("Post Added Successfully", "Success");
         this.router.navigate(["/list"]);
+      }, error => {
+        this.isLoadling = false;
+        this.openSnackBar("Getting error in Added posts", "Error");
       });
   }
   updatePost() {
@@ -125,15 +129,20 @@ export class PostCreateComponent implements OnInit {
         this.form.value.image
       )
       .subscribe(result => {
-        // this.isLoadling = false;
-        // this.form.reset();
+        this.isLoadling = false;
+        this.openSnackBar("Post updated successfully", "Success");
         this.router.navigate(["/list"]);
+      }, error => {
+        this.isLoadling = false;
+        this.openSnackBar("Getting error in updating posts", "Error");
       });
   }
 
   getPost() {
     this.postService.getPost(this.postId).subscribe(postData => {
       this.setUpdate(postData);
+    }, error => {
+      this.openSnackBar("Getting error in loading posts", "Error");
     });
   }
 
@@ -150,6 +159,12 @@ export class PostCreateComponent implements OnInit {
       title: post.title,
       content: post.content,
       image: postData.imagePath
+    });
+  }
+
+  openSnackBar(message: string, action: string) {
+    this.snackBar.open(message, action, {
+      duration: 3000,
     });
   }
 }

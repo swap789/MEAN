@@ -2,3 +2,6 @@ mat-form-field {
     width: 100%;
 }
 
+mat-spinner{
+    justify-self: center;
+}
